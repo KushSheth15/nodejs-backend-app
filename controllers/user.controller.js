@@ -34,9 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, 'Username or email already exists');
     }
 
-    console.log(req.files);
     const avatarLocal = req.files?.avatar[0]?.path;
-    // const coverLocal = req.files?.coverImage?.[0]?.path;
 
     let coverImageLocal;
     if (req.files && Array.isArray(req.files.coverImage) &&
@@ -49,7 +47,7 @@ const registerUser = asyncHandler(async (req, res) => {
     };
 
     const avatar = await uploadOnCloudinary(avatarLocal);
-    const coverImage = coverLocal ? await uploadOnCloudinary(coverLocal) : null;
+    const coverImage = coverImageLocal ? await uploadOnCloudinary(coverImageLocal) : null;
 
     if (!avatar) {
         throw new ApiError(400, 'Avatar file is required');
@@ -80,10 +78,7 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Username or email is required');
     }
 
-    const user = await User.findOne({
-        $or: [{ username }, { email }]
-    });
-
+    const user = await User.findOne({ $or: [{ username }, { email }] });
     if (!user) {
         throw new ApiError(404, "User does not exist");
     }
@@ -94,8 +89,8 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
-
     const loggedInUser = await User.findById(user._id).select('-password -refreshToken');
+
     const options = {
         httpOnly: true,
         secure: true
@@ -104,21 +99,13 @@ const loginUser = asyncHandler(async (req, res) => {
     return res.status(200)
         .cookie("accessToken", accessToken, options)
         .cookie("refreshToken", refreshToken, options)
-        .json(
-            new ApiResponse(200, {
-                user: loggedInUser,
-                accessToken,
-                refreshToken
-            },
-                "User logged in successfully"
-            )
-        )
+        .json(new ApiResponse(200, { user: loggedInUser, accessToken, refreshToken }, "User logged in successfully"));
 })
 
 const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(req.user._id, {
-        $set: {
-            refreshToken: undefined,
+        $unset:{
+            refreshToken:1
         }
     },
         {
@@ -172,8 +159,12 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 const changeCurrentPassword = asyncHandler(async (req, res) => {
     const { oldPassword, newPassword } = req.body;
 
-    const user = await User.findById(req.user?._id)
-    const isPasswordCorrect = await User.isPasswordCorrect(oldPassword);
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
 
     if (!isPasswordCorrect) {
         throw new ApiError(400, "Invalid Old Password");
@@ -188,7 +179,17 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-    return res.status(200).json(200, req.user, "Current User fetched successfully")
+    if (!req.user) {
+        throw new ApiError(401, "Unauthorized request");
+    }
+
+    const user = await User.findById(req.user._id).select("-password -refreshToken");
+
+    return res.status(200).json({
+        status: 200,
+        data: user,
+        message: "Current User fetched successfully"
+    });
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
@@ -217,7 +218,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Avatar is required");
     }
 
-    const avatar = uploadOnCloudinary(avatarLocalPath)
+    const avatar =await uploadOnCloudinary(avatarLocalPath)
     if (!avatar.url) {
         throw new ApiError(400, "Failed to upload avatar ");
     }
@@ -241,7 +242,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Cover Image is required");
     }
 
-    const coverImage = uploadOnCloudinary(coverImageLocalPath)
+    const coverImage =await uploadOnCloudinary(coverImageLocalPath)
     if (!coverImage.url) {
         throw new ApiError(400, "Failed to upload Cover Image");
     }
