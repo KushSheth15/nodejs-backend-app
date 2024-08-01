@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post("/:videoId",likeVideo);
 
-router.get("/liked",getLikedVideos);
+router.get("/liked-videos",getLikedVideos);
 
 module.exports = router;
