@@ -2,13 +2,14 @@ const express = require('express');
 const { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, getUserChannelProfile, getWatchHistory, updateAccountDetails, updateUserAvatar, updateUserCoverImage } = require('../controllers/user.controller');
 const upload = require('../middlewares/multer.middleware');
 const verifyJWT = require("../middlewares/auth.middleware");
+const userValidator = require("../validators/userValidator");
 const router = express.Router();
 
 // Ensure the upload middleware is set correctly
 router.post('/register', upload.fields([
     { name: 'avatar', maxCount: 1 },
     { name: 'coverImage', maxCount: 1 }
-]), registerUser);
+]),userValidator, registerUser);
 
 router.post('/login', loginUser);
 

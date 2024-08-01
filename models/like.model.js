@@ -1,23 +1,19 @@
 const mongoose = require('mongoose');
 
 const likeSchema = new mongoose.Schema({
-    video:{
+    video: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Video'
     },
-    comment:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comment'
+    isLike: {
+        type:Boolean,
+        default: false
     },
-    tweet:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Tweet'
-    },
-    likedBy:{
+    likedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }
-},{
+}, {
     timestamps: true,
 });
 

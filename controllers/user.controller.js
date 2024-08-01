@@ -1,9 +1,10 @@
 const asyncHandler = require('../utils/asyncHandler');
+const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
 const ApiError = require('../utils/apiError');
 const User = require("../models/user.model");
 const uploadOnCloudinary = require("../utils/cloudinary");
 const ApiResponse = require("../utils/apiResponse");
-const jwt = require("jsonwebtoken");
 const { default: mongoose } = require('mongoose');
 
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -25,8 +26,9 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
     const { fullName, email, username, password } = req.body;
 
-    if ([fullName, email, username, password].some(field => field?.trim() === "")) {
-        throw new ApiError(400, 'All fields are required');
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        throw new ApiError(400, errors.array().map(err => err.msg).join(', '));
     }
 
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
@@ -104,8 +106,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(req.user._id, {
-        $unset:{
-            refreshToken:1
+        $unset: {
+            refreshToken: 1
         }
     },
         {
@@ -218,7 +220,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Avatar is required");
     }
 
-    const avatar =await uploadOnCloudinary(avatarLocalPath)
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
     if (!avatar.url) {
         throw new ApiError(400, "Failed to upload avatar ");
     }
@@ -242,7 +244,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Cover Image is required");
     }
 
-    const coverImage =await uploadOnCloudinary(coverImageLocalPath)
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
     if (!coverImage.url) {
         throw new ApiError(400, "Failed to upload Cover Image");
     }
@@ -355,9 +357,9 @@ const getWatchHistory = asyncHandler(async (req, res) => {
                                     }
                                 },
                                 {
-                                    $addFields:{
-                                        owner:{
-                                            $first:"$owner"
+                                    $addFields: {
+                                        owner: {
+                                            $first: "$owner"
                                         }
                                     }
                                 }
@@ -369,7 +371,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         }
     ])
 
-    return res.status(200).json(new ApiResponse(200,user[0].watchHistory,"Watch History fetched successfully"));
+    return res.status(200).json(new ApiResponse(200, user[0].watchHistory, "Watch History fetched successfully"));
 })
 
 module.exports = {
