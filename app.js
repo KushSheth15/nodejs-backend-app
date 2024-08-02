@@ -9,6 +9,8 @@ const commentRouter = require('./routes/comment.routes');
 const likeRouter = require("./routes/like.routes");
 const subscribeRouter = require('./routes/subsciption.routes');
 
+const {MAIN_ROUTES} = require("./constants/endpoint");
+
 const app = express();
 
 app.use(cors({
@@ -21,10 +23,10 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 // routes
-app.use("/api/v1/user",userRouter);
-app.use("/api/v1/video",videoRouter);
-app.use("/api/v1/comment",commentRouter);
-app.use("/api/v1/like",likeRouter);
-app.use("/api/v1/subscription",subscribeRouter);
+app.use(MAIN_ROUTES.USER,userRouter);
+app.use(MAIN_ROUTES.VIDEO,videoRouter);
+app.use(MAIN_ROUTES.COMMENT,commentRouter);
+app.use(MAIN_ROUTES.LIKE,likeRouter);
+app.use(MAIN_ROUTES.SUBSCRIPTION,subscribeRouter);
 
 module.exports = app;
