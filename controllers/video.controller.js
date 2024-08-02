@@ -105,8 +105,30 @@ const getAllVideos = asyncHandler(async (req,res)=>{
     },'Videos retrieved successfully'));
 });
 
+const downloadVideo = asyncHandler(async (req,res)=>{
+    const {videoId} = req.params;
+
+    if(!mongoose.Types.ObjectId.isValid(videoId)){
+        throw new ApiError(400, 'Invalid video ID');
+    }
+
+    const video = await Video.findById(videoId);
+
+    if(!video){
+        throw new ApiError(404, 'Video not found');
+    }
+
+    const videoUrl = video.videoFile;
+
+    res.setHeader('Content-Disposition',`attachment; filename="${video.title}.mp4"`);
+    res.setHeader('Content-Type','application/octet-stream');
+
+    return res.redirect(videoUrl);
+});
+
 module.exports = {
     publishVideo,
     getVideoById,
-    getAllVideos
+    getAllVideos,
+    downloadVideo
 }

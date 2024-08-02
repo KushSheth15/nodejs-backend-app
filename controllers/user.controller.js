@@ -5,6 +5,7 @@ const ApiError = require('../utils/apiError');
 const User = require("../models/user.model");
 const uploadOnCloudinary = require("../utils/cloudinary");
 const ApiResponse = require("../utils/apiResponse");
+const { Parser } = require('json2csv');
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -260,6 +261,27 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, user, "Cover Image updated successfully"));
 });
 
+const downloadUserCSV = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user?._id).select('username email fullName');
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    const fields = ['username', 'email', 'fullName'];
+    const opts = { fields };
+
+    try {
+        const parser = new Parser(opts);
+        const csv = parser.parse([user]); 
+        res.header('Content-Type', 'text/csv');
+        res.attachment('user.csv');
+        res.send(csv);
+    } catch (err) {
+        throw new ApiError(500, "Error generating CSV");
+    }
+});
+
 module.exports = {
     registerUser,
     loginUser,
@@ -270,5 +292,5 @@ module.exports = {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
-    
+    downloadUserCSV
 };

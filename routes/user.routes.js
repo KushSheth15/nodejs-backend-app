@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, getUserChannelProfile, getWatchHistory, updateAccountDetails, updateUserAvatar, updateUserCoverImage } = require('../controllers/user.controller');
+const { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, updateUserCoverImage,downloadUserCSV } = require('../controllers/user.controller');
 const {USER_ROUTES} = require("../constants/endpoint");
 const upload = require('../middlewares/multer.middleware');
 const verifyJWT = require("../middlewares/auth.middleware");
@@ -28,5 +28,7 @@ router.patch(USER_ROUTES.UPDATE_ACCOUNT, verifyJWT, updateAccountDetails);
 router.patch(USER_ROUTES.UPDATE_AVATAR, verifyJWT, upload.single("avatar"), updateUserAvatar);
 
 router.patch(USER_ROUTES.UPDATE_COVERIMAGE, verifyJWT, upload.single("coverImage"), updateUserCoverImage);
+
+router.get(USER_ROUTES.DOWNLOAD_CSV, verifyJWT,downloadUserCSV);
 
 module.exports = router;

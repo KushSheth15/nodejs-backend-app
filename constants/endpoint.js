@@ -16,12 +16,14 @@ const USER_ROUTES = {
     UPDATE_AVATAR:'/avatar',
     UPDATE_COVERIMAGE:'/cover-image',
     REFRESH_TOKEN:'/refresh-token',
+    DOWNLOAD_CSV:'/download-csv'
 }
 
 const VIDEO_ROUTES = {
     PUBLISH_VIDEO:'/publish',
     GET_VIDEO_BY_ID:'/getVideo/:videoId',
-    GET_ALL_VIDEOS:'/getAllVideo'
+    GET_ALL_VIDEOS:'/getAllVideo',
+    DOWNLOAD_VIDEO:'/download/:videoId'
 }
 
 const COMMENT_ROUTES = {
