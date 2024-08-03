@@ -6,4 +6,3 @@ A video tube application built using Node.js, Express, and MongoDB. This app all
 - Subscription management between users.
 - Search functionality for videos.
 - Pagination support for video listings.
-- Responsive design for a better user experience.
