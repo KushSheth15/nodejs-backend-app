@@ -4,6 +4,10 @@ const app = require('./app');
 
 const PORT = process.env.PORT;
 
+app.get('/', (req, res) =>{
+    res.send('Hello from the server'); 
+})
+
 connectDB().then(() => {
     app.listen(PORT,()=>{
         console.log(`Server running on port ${PORT} 🚀`); 
