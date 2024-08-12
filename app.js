@@ -13,6 +13,10 @@ const {MAIN_ROUTES} = require("./constants/endpoint");
 
 const app = express();
 
+app.get('/', (req, res) =>{
+    res.send('Hello from the server'); 
+})
+
 app.use(cors({
     origin:process.env.CORS_ORIGIN
 }));
